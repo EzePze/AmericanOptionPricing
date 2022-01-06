@@ -13,14 +13,14 @@ def op():
     # M = int(input("Number of price steps: "))
     # N = int(input("Number of time steps: "))
     CP = 0
-    S = 4
+    S = 15
     K = 8
     T = 1
     sig = 0.4
     r = 0.1
     q = 0.08
-    M = 100
-    N = 100
+    M = 200
+    N = 200
 
     # price and time step widths with mult*S as the max stock price
     mult = 5
@@ -36,14 +36,13 @@ def op():
     g = np.zeros((M+1, N+1))
 
     for i in range(N+1):
-        g[0][i] += (1-CP)*(Smax-K*np.exp(-(r-q)*(T-t*i)))
-        g[M][i] += CP*K*np.exp(-(r-q)*(T-t*i))
+        g[0][i] += Smax-K*np.exp(-(r-q)*(T-t*i))
 
     for i in range(1, M):
-        g[i][N] = (1-CP)*max((M-i)*s-K, 0) + CP*max(K-(M-i)*s, 0)
+        g[i][N] = max((M-i)*s-K, 0)
 
     g[M - M//mult][0] = S
-    g[M - M//mult][N] = (1-CP)*max(S-K, 0) + CP*max(K-S, 0)
+    g[M - M//mult][N] = max(S-K, 0)
 
     # define the coefficients to be used in solving difference equations
     # note that we need to switch the j indices around: in my head I'm thinking

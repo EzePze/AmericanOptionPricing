@@ -3,10 +3,11 @@ from math import *
 import matplotlib.pyplot as plt
 import time
 
+
 def price_american_option_with_divs():
     S = int(input("Current price: "))
-    Smin = 0.85*S
-    Smax = 1.15*S
+    Smin = 0.4
+    Smax = 150
     E = 8
     r = 0.1
     d = 0.08
@@ -18,7 +19,7 @@ def price_american_option_with_divs():
     kd = (r-d)/(0.5*sigma**2)
 
     tol = 0.001
-    omega=1.2
+    omega = 1.2
 
     fig, ax = plt.subplots()
     ax.grid()
@@ -46,9 +47,11 @@ def price_american_option_with_divs():
     g = zeros((N+1, M+1))
 
     for n in range(N+1):
-        for m in range(2, M+1):
-            g[n, m] = exp((0.25*(kd-1)**2+k)*((m-1)*dt))*(max((exp(0.5 * (kd+1)*(n+Nminus-1)*dX)-exp(0.5*(kd-1)*(n+Nminus-1)*dX)), 0))
-        g[n, 0] = max((exp(0.5*(kd+1)*(n+Nminus-1)*dX) - exp(0.5*(kd-1)*(n+Nminus-1)*dX)), 0)
+        for m in range(1, M+1):
+            g[n, m] = exp((0.25*(kd-1)**2+k)*((m-1)*dt))*(max((exp(0.5 *
+                                                                   (kd+1)*(n+Nminus-1)*dX)-exp(0.5*(kd-1)*(n+Nminus-1)*dX)), 0))
+        g[n, 0] = max((exp(0.5*(kd+1)*(n+Nminus-1)*dX) -
+                      exp(0.5*(kd-1)*(n+Nminus-1)*dX)), 0)
     g[0] = [0]*(M+1)
 
     u[N] = g[N]
@@ -61,23 +64,24 @@ def price_american_option_with_divs():
     zmatrix = zeros((N+1, M+1))
 
     cmatrix = diagflat([-0.5*alpha for _ in range(N-2)], -1) +\
-              diagflat([1+alpha for _ in range(N-1)]) +\
-                diagflat([-0.5*alpha for _ in range(N-2)], 1)
+        diagflat([1+alpha for _ in range(N-1)]) +\
+        diagflat([-0.5*alpha for _ in range(N-2)], 1)
 
     for p in range(M-1):
-        temp = zeros((N-1, 1))
+        temp = zeros(N-1)
         temp[0] = a*g[0, p+1]
         temp[-1] = c*g[N, p+1]
-        zmatrix[1:N, p] = (1-alpha)*u[1:N, p]+0.5*alpha*(u[2:N+1, p]+u[:N-1, p])
-        RHS = subtract(zmatrix[1:N, p],temp)
+        zmatrix[1:N, p] = (1-alpha)*u[1:N, p]+0.5 * \
+            alpha*(u[2:N+1, p]+u[:N-1, p])
+        RHS = subtract(zmatrix[1:N, p], temp)
         b = RHS
         #print(u[1:N, p].shape)
         #x = max(u[1:N][p], g[1:N][p])
         x = array([i if i > j else j for i, j in zip(u[1:N, p], g[1:N, p+1])])
-        #print(x.shape)
+        # print(x.shape)
         xold = 1000*x
         n = len(x)
-        while linalg.norm(subtract(xold,x)) > tol:
+        while linalg.norm(subtract(xold, x)) > tol:
             xold = x
             for i in range(n):
                 if i == 0:
@@ -89,23 +93,24 @@ def price_american_option_with_divs():
                     #x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
                     x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
                 else:
-                    
-                    #print(i)
+
+                    # print(i)
                     z = (b[i]+0.5*alpha*(x[i-1]+x[i+1]))/(1+alpha)
                     #x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
                     x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
-        x = linalg.solve(cmatrix, b)
-        u[1:N, p+1] = x[0]
+        #x = linalg.solve(cmatrix, b)
+        u[1:N, p+1] = x
         # if p % plot_step == 0:
-            # ax.plot(X_plot_mesh, u[:, M], label="t = %.2f" % (p*dt))
-            # ax.set(xlabel='S', ylabel='u(X,t)', title='u(X,t)')
-            # fig.savefig('crank-nicholson-calc.png')
-            # plt.show()
-    
-    uresult = interp(X, u[:, M], Xmesh)
+        # ax.plot(X_plot_mesh, u[:, M], label="t = %.2f" % (p*dt))
+        # ax.set(xlabel='S', ylabel='u(X,t)', title='u(X,t)')
+        # fig.savefig('crank-nicholson-calc.png')
+        # plt.show()
+
+    uresult = interp(X, Xmesh, u[:, M])
 
     return (E*E**(0.5*(kd-1))*S**(-0.5*(kd-1))*exp((-(1/4)*(kd-1)**2-k)*0.5*sigma**2*T)*uresult, time.time()-start_time)
 
 
 if __name__ == "__main__":
-    print("Price of American Option: %.4f\nTime Taken to calculate: %.4f seconds" % price_american_option_with_divs())
+    print("Price of American Option: %.4f\nTime Taken to calculate: %.4f seconds" %
+          price_american_option_with_divs())
