@@ -4,6 +4,27 @@ import matplotlib.pyplot as plt
 import time
 
 
+def solve_tridiagonal(a, b, c, solve_for):
+    '''
+    JAY -- a fast function for solving tridiagonal matrices. 
+    '''
+    height = len(b) # number of equations
+    
+    top, mid, bottom, b = map(array, (a, b, c, solve_for))
+
+    for i in range(1, height):
+        m = top[i-1]/mid[i-1]
+        mid[i] = mid[i] - m*bottom[i-1] 
+        b[i] = b[i] - m*b[i-1]
+        	    
+    x = mid
+    x[-1] = b[-1]/mid[-1]
+
+    for i in range(height-2, -1, -1):
+        x[i] = (b[i]-bottom[i]*x[i+1])/mid[i]
+
+    return x
+
 def price_american_option_with_divs():
 
     #JAY -- Initialize variables -- can tweak these to compare against known pricings
@@ -21,9 +42,9 @@ def price_american_option_with_divs():
     kd = (r-d)/(0.5*sigma**2)
 
     #JAY -- TODO: find a way to plot the PDE for the presentation
-    fig, ax = plt.subplots()
-    ax.grid()
-    plot_step = 25
+    # fig, ax = plt.subplots()
+    # ax.grid()
+    # plot_step = 25
 
     M = 100
     Nminus = -100
@@ -63,10 +84,10 @@ def price_american_option_with_divs():
 
     zmatrix = zeros((N+1, M+1))
 
-    #JAY -- This is the coefficient matrix which can be solved efficiently due to it being tridiagonal -- notice that it's contstructed with three calls to the "diagflat" function
-    cmatrix = diagflat([-0.5*alpha for _ in range(N-2)], -1) +\
-        diagflat([1+alpha for _ in range(N-1)]) +\
-        diagflat([-0.5*alpha for _ in range(N-2)], 1)
+    #JAY -- the tridiagonal matrix (as shown in the original paper), split into each diagonal (note that the top and bottom diagonal are identical)
+    top_and_bottom = [-0.5*alpha] * (N-2)
+    mid = [1+alpha] * (N-1)
+
 
     #JAY -- The main part of the logic; iterates starting at t=0 until the expiry, determining the value of the next time step using the crank-nicolson method of finite differences
     for p in range(M):
@@ -78,9 +99,11 @@ def price_american_option_with_divs():
         RHS = zmatrix[1:N, p] - temp
         b = RHS
 
-        #JAY -- <-MAIN OPTIMISATION-> The original paper used an iterative SOR algorithm which was inefficient, numpy's matrix solver for square matrices allows for parallel processing and is therefore much faster, and also does not require multiple iterations
-        x = linalg.solve(cmatrix, b)
+        #JAY -- <-MAIN OPTIMISATION-> The original paper used an iterative SOR algorithm which was inefficient, numpy's matrix solver for square matrices allows for parallel processing and is therefore much faster, and also does not require multiple iterations. This can be further optimised with a tridiagonal solver, which can solve the system of equations in linear time
+        x = solve_tridiagonal(top_and_bottom, mid, top_and_bottom, b)
         u[1:N, p+1] = x
+
+        #JAY -- TODO: figure out plan for plotting
         # if p % plot_step == 0:
         # ax.plot(X_plot_mesh, u[:, M], label="t = %.2f" % (p*dt))
         # ax.set(xlabel='S', ylabel='u(X,t)', title='u(X,t)')
@@ -90,9 +113,7 @@ def price_american_option_with_divs():
     #JAY -- This is the final value of the option, which is the interpolated value of the last time step
     uresult = interp(X, Xmesh, u[:, M])
 
-    #print(uresult)
-
-    #JAY -- Solved using the Black-Scholes formula
+    #JAY -- End result is obtained using the Black-Scholes formula
     return (E*E**(0.5*(kd-1))*S**(-0.5*(kd-1))*exp((-(1/4)*(kd-1)**2-k)*0.5*sigma**2*T)*uresult, time.time()-start_time)
 
 
