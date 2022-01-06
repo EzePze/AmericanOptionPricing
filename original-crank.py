@@ -67,13 +67,13 @@ def price_american_option_with_divs():
         diagflat([1+alpha for _ in range(N-1)]) +\
         diagflat([-0.5*alpha for _ in range(N-2)], 1)
 
-    for p in range(M-1):
+    for p in range(M):
         temp = zeros(N-1)
         temp[0] = a*g[0, p+1]
         temp[-1] = c*g[N, p+1]
         zmatrix[1:N, p] = (1-alpha)*u[1:N, p]+0.5 * \
             alpha*(u[2:N+1, p]+u[:N-1, p])
-        RHS = subtract(zmatrix[1:N, p], temp)
+        RHS = zmatrix[1:N, p] - temp
         b = RHS
         #print(u[1:N, p].shape)
         #x = max(u[1:N][p], g[1:N][p])
@@ -81,23 +81,23 @@ def price_american_option_with_divs():
         # print(x.shape)
         xold = 1000*x
         n = len(x)
-        while linalg.norm(subtract(xold, x)) > tol:
+        while linalg.norm(xold - x) > tol:
             xold = x
             for i in range(n):
                 if i == 0:
                     z = (b[i]+0.5*alpha*x[i+1])/(1+alpha)
-                    #x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
-                    x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
+                    x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
+                    #x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
                 elif i == n-1:
                     z = (b[i]+0.5*alpha*x[i-1])/(1+alpha)
-                    #x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
-                    x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
+                    x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
+                    #x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
                 else:
 
                     # print(i)
                     z = (b[i]+0.5*alpha*(x[i-1]+x[i+1]))/(1+alpha)
-                    #x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
-                    x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
+                    x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
+                    #x[i] = max(max(omega*z + (1-omega)*xold[i]), g[i, p])
         #x = linalg.solve(cmatrix, b)
         u[1:N, p+1] = x
         # if p % plot_step == 0:

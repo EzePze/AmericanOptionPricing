@@ -25,12 +25,11 @@ def price_american_option_with_divs():
     ax.grid()
     plot_step = 25
 
-    M = 200
+    M = 100
     Nminus = -100
     Nplus = 100
     N = Nplus-Nminus
-    #u = zeros((N+1, M+1))
-    u = zeros((M+1, N+1))
+    u = zeros((N+1, M+1))
     dt = (0.5*sigma**2*T)/M
     Xzero = log(Smin/E)
     Xmax = log(Smax/E)
@@ -44,8 +43,7 @@ def price_american_option_with_divs():
     Xmesh = [Xzero + dX*i for i in range(N+1)]
     X_plot_mesh = [Smin + d_plot_X*i for i in range(N+1)]
 
-    #g = zeros((N+1, M+1))
-    g = zeros((M+1, N+1))
+    g = zeros((N+1, M+1))
 
     #JAY -- Initialize the payoff matrix
     for n in range(1, N+2):
@@ -63,8 +61,7 @@ def price_american_option_with_divs():
     b = 1+2*alpha
     c = -alpha
 
-    #zmatrix = zeros((N+1, M+1))
-    zmatrix = zeros((M+1, N+1))
+    zmatrix = zeros((N+1, M+1))
 
     #JAY -- This is the coefficient matrix which can be solved efficiently due to it being tridiagonal -- notice that it's contstructed with three calls to the "diagflat" function
     cmatrix = diagflat([-0.5*alpha for _ in range(N-2)], -1) +\
