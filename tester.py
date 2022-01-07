@@ -53,6 +53,7 @@ def test_crank_plot():
     plt.xlabel("Number of calculations")
     plt.ylabel("Time (seconds)")
     plt.show() 
+    plt.grid()
     plt.savefig("crank_plot.png")
 
 if __name__ == "__main__":

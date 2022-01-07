@@ -2,12 +2,12 @@ from numpy import *
 from math import *
 import matplotlib.pyplot as plt
 import time
-from numba import jit, f8
+from numba import jit
 import warnings
 warnings.filterwarnings("ignore")
 
-#JAY -- using Numba, just specify the type of the arguments and the return type and it stores the function in a compiled binary that dramatically speeds up runtime
-@jit(f8[:] (f8[:],f8[:],f8[:],f8[:] ))
+#JAY -- using Numba, the JIT compiler stores the function in a compiled binary that dramatically speeds up runtime
+@jit
 def solve_tridiagonal(a, b, c, solve_for):
     '''
     JAY -- a fast function for solving tridiagonal matrices. 
