@@ -2,14 +2,16 @@ from numpy import *
 from math import *
 import matplotlib.pyplot as plt
 import time
+from numba import jit, f8
 
-
+#JAY -- using Numba, just specify the type of the arguments and the return type and it stores the function in a compiled binary that dramatically speeds up runtime
+@jit(f8[:] (f8[:],f8[:],f8[:],f8[:] ))
 def solve_tridiagonal(a, b, c, solve_for):
     '''
     JAY -- a fast function for solving tridiagonal matrices. 
     '''
     height = len(b) # number of equations
-    
+  
     top, mid, bottom, b = map(array, (a, b, c, solve_for))
 
     for i in range(1, height):
@@ -28,7 +30,8 @@ def solve_tridiagonal(a, b, c, solve_for):
 def price_american_option_with_divs():
 
     #JAY -- Initialize variables -- can tweak these to compare against known pricings
-    S = int(input("Current price: "))
+    #S = int(input("Current price: "))
+    S = 15
     Smin = 0.4
     Smax = 150
     E = 8

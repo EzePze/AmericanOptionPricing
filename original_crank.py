@@ -5,7 +5,8 @@ import time
 
 
 def price_american_option_with_divs():
-    S = int(input("Current price: "))
+    #S = int(input("Current price: "))
+    S = 15
     Smin = 0.4
     Smax = 150
     E = 8
@@ -21,9 +22,9 @@ def price_american_option_with_divs():
     tol = 0.001
     omega = 1.2
 
-    fig, ax = plt.subplots()
-    ax.grid()
-    plot_step = 25
+    # fig, ax = plt.subplots()
+    # ax.grid()
+    # plot_step = 25
 
     M = 100
     Nminus = -100
