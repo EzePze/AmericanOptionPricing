@@ -97,7 +97,7 @@ def price_american_option_with_divs():
                     z = (b[i]+0.5*alpha*(x[i-1]+x[i+1]))/(1+alpha)
                     x[i] = max(omega*z + (1-omega)*xold[i], g[i][p])
 
-        x = linalg.solve(cmatrix, b)
+        #x = linalg.solve(cmatrix, b)
         u[1:N, p+1] = x
         # if p % plot_step == 0:
         # ax.plot(X_plot_mesh, u[:, M], label="t = %.2f" % (p*dt))

@@ -2,19 +2,22 @@ from numpy import *
 from math import *
 import matplotlib.pyplot as plt
 import time
-from numba import jit
+
+from numpy.linalg import solve
+from numba import jit, cuda, f8, njit
 import warnings
 warnings.filterwarnings("ignore")
 
 #JAY -- using Numba, the JIT compiler stores the function in a compiled binary that dramatically speeds up runtime
-@jit
-def solve_tridiagonal(a, b, c, solve_for):
+@jit(f8[:] (f8[:],f8[:],f8[:],f8[:] ), cache=True)
+def solve_tridiagonal(top, mid, bottom, b):
     '''
     JAY -- a fast function for solving tridiagonal matrices, based on Thomas' Algorithm. 
     '''
     height = len(b)
   
-    top, mid, bottom, b = map(array, (a, b, c, solve_for))
+    #top, mid, bottom, b = map(array, (a, b, c, solve_for))
+    #top, mid, bottom, b = [array(i) for i in [a, b, c, solve_for]]
 
     for i in range(1, height):
         m = top[i-1]/mid[i-1]
@@ -29,6 +32,7 @@ def solve_tridiagonal(a, b, c, solve_for):
 
     return x
 
+@jit()
 def price_american_option_with_divs():
 
     #JAY -- Initialize variables -- can tweak these to compare against known pricings
@@ -99,7 +103,7 @@ def price_american_option_with_divs():
         b = RHS
 
         #JAY -- <-MAIN OPTIMISATION-> The original paper used an iterative SOR algorithm which was inefficient, numpy's matrix solver for square matrices allows for parallel processing and is therefore much faster, and also does not require multiple iterations. This can be further optimised with a tridiagonal solver, which can solve the system of equations in linear time
-        x = solve_tridiagonal(top_and_bottom, mid, top_and_bottom, b)
+        x = solve_tridiagonal(array(top_and_bottom), array(mid), array(top_and_bottom), array(b))
         u[1:N, p+1] = x
 
     #JAY -- This is the final value of the option, which is the interpolated value of the last time step
