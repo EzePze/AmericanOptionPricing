@@ -10,9 +10,9 @@ warnings.filterwarnings("ignore")
 @jit
 def solve_tridiagonal(a, b, c, solve_for):
     '''
-    JAY -- a fast function for solving tridiagonal matrices. 
+    JAY -- a fast function for solving tridiagonal matrices, based on Thomas' Algorithm. 
     '''
-    height = len(b) # number of equations
+    height = len(b)
   
     top, mid, bottom, b = map(array, (a, b, c, solve_for))
 
@@ -32,7 +32,6 @@ def solve_tridiagonal(a, b, c, solve_for):
 def price_american_option_with_divs():
 
     #JAY -- Initialize variables -- can tweak these to compare against known pricings
-    #S = int(input("Current price: "))
     S = 15
     Smin = 0.4
     Smax = 150
@@ -45,11 +44,6 @@ def price_american_option_with_divs():
     X = log(S/E)
     k = r/(0.5*sigma**2)
     kd = (r-d)/(0.5*sigma**2)
-
-    #JAY -- TODO: find a way to plot the PDE for the presentation
-    # fig, ax = plt.subplots()
-    # ax.grid()
-    # plot_step = 25
 
     M = 100
     Nminus = -100
@@ -94,7 +88,7 @@ def price_american_option_with_divs():
     mid = [1+alpha] * (N-1)
 
 
-    #JAY -- The main part of the logic; iterates starting at t=0 until the expiry, determining the value of the next time step using the crank-nicolson method of finite differences
+    #JAY -- The main part of the logic; iterates starting at t=0 until the expiry time, determining the value of the next time step using the crank-nicolson method of finite differences
     for p in range(M):
         temp = zeros(N-1)
         temp[0] = a*g[0, p+1]
@@ -107,13 +101,6 @@ def price_american_option_with_divs():
         #JAY -- <-MAIN OPTIMISATION-> The original paper used an iterative SOR algorithm which was inefficient, numpy's matrix solver for square matrices allows for parallel processing and is therefore much faster, and also does not require multiple iterations. This can be further optimised with a tridiagonal solver, which can solve the system of equations in linear time
         x = solve_tridiagonal(top_and_bottom, mid, top_and_bottom, b)
         u[1:N, p+1] = x
-
-        #JAY -- TODO: figure out plan for plotting
-        # if p % plot_step == 0:
-        # ax.plot(X_plot_mesh, u[:, M], label="t = %.2f" % (p*dt))
-        # ax.set(xlabel='S', ylabel='u(X,t)', title='u(X,t)')
-        # fig.savefig('crank-nicholson-calc.png')
-        # plt.show()
 
     #JAY -- This is the final value of the option, which is the interpolated value of the last time step
     uresult = interp(X, Xmesh, u[:, M])

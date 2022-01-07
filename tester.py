@@ -52,6 +52,8 @@ def test_crank_plot():
     plt.title("Comparison of Crank-Nicolson Method Implementations\n(Ryzen 3700X, RTX 2080S, 32GB of RAM)")
     plt.xlabel("Number of calculations")
     plt.ylabel("Time (seconds)")
+    plt.annotate("%.2f" % (original_times[-1]), xy=(x[-1], original_times[-1]), xytext=(x[-1]+10, original_times[-1]+10))
+    plt.annotate("%.2f" % (new_times[-1]), xy=(x[-1], new_times[-1]), xytext=(x[-1]+10, new_times[-1]+10))
     plt.show() 
     plt.grid()
     plt.savefig("crank_plot.png")
