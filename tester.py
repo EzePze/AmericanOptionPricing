@@ -10,6 +10,13 @@ def test_new_tridiag():
     time2 = time.time()
     print("New: %.4f seconds" % (time2-time1))
 
+def test_one_new():
+    new_crank.price_american_option_with_divs()
+    start = time.time()
+    new_crank.price_american_option_with_divs()
+    end = time.time()
+    print("Time to calc one option price: %.8f seconds" % (end-start))
+
 def test_old_method():
     time1 = time.time()
     for _ in range(200):
@@ -37,14 +44,15 @@ def test_crank_plot():
         for _ in range(100):
             original_crank.price_american_option_with_divs()
         original_times.append(time.time() - time_orig_start)
-        print("loop %d complete, time= %.4f seconds" % (i+1, original_times[i+1]))
+        print("loop %d complete, time = %.4f seconds" % (i+1, original_times[i+1]))
+    new_crank.price_american_option_with_divs()
     time_new_start = time.time()
     new_times = [0]
     for i in range(20):
         for _ in range(100):
             new_crank.price_american_option_with_divs()
         new_times.append(time.time() - time_new_start)
-        print("loop %d complete, time= %.4f seconds" % (i+1, new_times[i+1]))
+        print("loop %d complete, time = %.4f seconds" % (i+1, new_times[i+1]))
     x = range(0, 2001, 100)
     plt.plot(x, original_times, "r^-", label="Original")
     plt.plot(x, new_times, "bo-", label="New")
@@ -59,5 +67,6 @@ def test_crank_plot():
     plt.savefig("crank_plot.png")
 
 if __name__ == "__main__":
-    test_crank_plot()
+    #test_crank_plot()
+    test_one_new()
     #test_new_tridiag()

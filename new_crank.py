@@ -9,15 +9,12 @@ import warnings
 warnings.filterwarnings("ignore")
 
 #JAY -- using Numba, the JIT compiler stores the function in a compiled binary that dramatically speeds up runtime
-@jit(f8[:] (f8[:],f8[:],f8[:],f8[:] ), cache=True)
+@jit(f8[:] (f8[:],f8[:],f8[:],f8[:] ), cache=True, nopython=True)
 def solve_tridiagonal(top, mid, bottom, b):
     '''
     JAY -- a fast function for solving tridiagonal matrices, based on Thomas' Algorithm. 
     '''
     height = len(b)
-  
-    #top, mid, bottom, b = map(array, (a, b, c, solve_for))
-    #top, mid, bottom, b = [array(i) for i in [a, b, c, solve_for]]
 
     for i in range(1, height):
         m = top[i-1]/mid[i-1]
@@ -32,11 +29,11 @@ def solve_tridiagonal(top, mid, bottom, b):
 
     return x
 
-@jit()
+@jit(cache=True)
 def price_american_option_with_divs():
 
     #JAY -- Initialize variables -- can tweak these to compare against known pricings
-    S = 15
+    S = 4
     Smin = 0.4
     Smax = 150
     E = 8
