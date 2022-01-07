@@ -3,6 +3,8 @@ from math import *
 import matplotlib.pyplot as plt
 import time
 from numba import jit, f8
+import warnings
+warnings.filterwarnings("ignore")
 
 #JAY -- using Numba, just specify the type of the arguments and the return type and it stores the function in a compiled binary that dramatically speeds up runtime
 @jit(f8[:] (f8[:],f8[:],f8[:],f8[:] ))
